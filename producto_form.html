@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Nuevo producto{% endblock %}
+{% block body %}
+<div class="topbar">
+  <div class="tb-back">
+    <a href="{{ url_for('productos') }}" class="back-btn" title="Volver a productos" aria-label="Volver">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div><div class="crumb"><a href="{{ url_for('productos') }}">Productos</a> / Nuevo</div><h1>Registrar nuevo producto</h1></div>
+  </div>
+</div>
+
+<form method="post">
+<div class="form-2col">
+  <!-- columna principal -->
+  <div class="card form-main">
+    <div class="form-section-head">
+      <span class="fs-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg></span>
+      <div><h2 style="margin:0">Información del producto</h2><p class="fs-sub">Datos básicos del artículo a registrar</p></div>
+    </div>
+    <div class="field">
+      <label>Nombre del producto</label>
+      <input name="nombre" required placeholder="Ej. Tablero inteligente interactivo 75&quot;">
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Categoría</label>
+        <select name="categoria" id="catSel" required onchange="document.getElementById('nuevaCatBox').style.display = this.value==='__nueva__' ? 'grid' : 'none'">
+          <option value="">Selecciona…</option>
+          {% for c in cats %}<option value="{{ c.id }}">{{ c.nombre }} · {{ c.prefijo }}</option>{% endfor %}
+          <option value="__nueva__">+ Nueva categoría…</option>
+        </select></div>
+      <div class="form-grid" id="nuevaCatBox" style="display:none">
+        <div class="field"><label>Nombre de la categoría</label><input name="nueva_categoria" placeholder="Ej. Tableros inteligentes"></div>
+        <div class="field"><label>Prefijo SKU (3-6 letras)</label><input name="nuevo_prefijo" placeholder="Ej. TABL" maxlength="6" style="text-transform:uppercase"></div>
+      </div>
+      <div class="field"><label>Precio (COP)</label>
+        <div class="input-pre"><span>$</span><input name="precio" type="number" step="1" min="0" value="0"></div>
+      </div>
+      <div class="field"><label>Stock inicial</label><input name="stock" type="number" min="0" value="0"></div>
+      <div class="field"><label>Stock mínimo <span class="lbl-hint">(alerta)</span></label><input name="stock_minimo" type="number" min="0" value="5"></div>
+    </div>
+  </div>
+
+  <!-- columna lateral: código de barras -->
+  <div class="card form-side">
+    <div class="form-section-head">
+      <span class="fs-ic ic-scan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M6 12h12"/></svg></span>
+      <div><h2 style="margin:0">Código de barras</h2><p class="fs-sub">Escanea o deja vacío</p></div>
+    </div>
+    <div class="field">
+      <label>Código escaneado</label>
+      <div class="input-ic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6v12M8 6v12M12 6v12M16 6v12M20 6v12" opacity=".9"/></svg>
+        <input name="codigo_barras" placeholder="Escanea aquí con el lector…" autocomplete="off">
+      </div>
+    </div>
+    <div class="scan-hint">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+      <span>Si lo dejas vacío, el sistema generará el código de barras a partir del <b>SKU único</b> del producto.</span>
+    </div>
+    <div class="sku-preview">
+      <span class="sku-prev-lbl">SKU que se asignará</span>
+      <span class="sku-prev-val">AVC-<b>XXXX</b>-00000</span>
+    </div>
+  </div>
+</div>
+
+<div class="form-actions-bar">
+  <a href="{{ url_for('productos') }}" class="btn btn-ghost">Cancelar</a>
+  <button class="btn btn-ok" type="submit">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    Guardar producto</button>
+</div>
+</form>
+{% endblock %}

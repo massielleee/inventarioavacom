@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Remisión técnica {{ g.remision_tecnica }} · AVACOM</title>
+<style>
+  :root{--rojo:#C01C32;--rojo-prof:#8E1322;--carbon:#1A1A1E;--gris:#6B7280;--line:#E7E9EE;--bg:#F6F7F9;--verde:#1E9E62}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--carbon);padding:30px}
+  .toolbar{max-width:820px;margin:0 auto 18px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--rojo);color:#fff;border:none;border-radius:10px;padding:12px 22px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;text-decoration:none}
+  .btn:hover{background:var(--rojo-prof)}
+  .btn-ghost{background:#fff;color:var(--carbon);border:1.5px solid var(--line)}
+  .sheet{max-width:820px;margin:0 auto;background:#fff;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.08);overflow:hidden}
+  .r-head{background:linear-gradient(135deg,var(--rojo) 0%,var(--rojo-prof) 100%);color:#fff;padding:36px 44px;display:flex;justify-content:space-between;align-items:flex-start}
+  .r-brand{display:flex;align-items:center;gap:14px}
+  .r-mark{width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);display:grid;place-items:center}
+  .r-mark svg{width:30px;height:30px}
+  .r-logo{font-size:30px;font-weight:800;letter-spacing:.5px;line-height:1}
+  .r-logo-sub{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;opacity:.75;margin-top:3px}
+  .r-doc{text-align:right}
+  .r-doc .t{font-size:13px;text-transform:uppercase;letter-spacing:2px;opacity:.8}
+  .r-doc .n{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:24px;font-weight:700;margin-top:4px}
+  .r-doc .d{font-size:13px;opacity:.85;margin-top:4px}
+  .r-body{padding:34px 44px}
+  .r-parties{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-bottom:26px}
+  .r-party .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gris);font-weight:700;margin-bottom:8px}
+  .r-party .val{font-size:15px;line-height:1.7}.r-party .val b{display:block;font-size:16px}
+  .r-sec-title{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--rojo);font-weight:800;margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid var(--line)}
+  .r-result{display:flex;align-items:center;gap:12px;padding:16px 20px;border-radius:12px;margin-bottom:24px;font-size:16px;font-weight:700}
+  .r-result.ok{background:#E3F5EC;color:#14633c}
+  .r-result.no{background:#FCE8EB;color:#9a271b}
+  table{width:100%;border-collapse:collapse;margin-bottom:24px}
+  thead th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--gris);padding:10px 12px;background:var(--bg);border-radius:6px}
+  tbody td{padding:13px 12px;border-bottom:1px solid var(--line);font-size:14.5px}
+  .sku{font-family:'JetBrains Mono',ui-monospace,monospace;font-weight:700;color:var(--rojo-prof);background:#FCE8EB;padding:3px 9px;border-radius:6px;font-size:13px}
+  .block{background:var(--bg);border-radius:12px;padding:16px 18px;margin-bottom:24px;font-size:14px;line-height:1.7}
+  .block b.lbl{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gris);margin-bottom:5px}
+  .chk-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:24px}
+  .chk-it{display:flex;align-items:center;gap:9px;font-size:13.5px}
+  .chk-it.yes{color:#374151}.chk-it.no{color:#b8b8be}
+  .ev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+  .ev{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .ev img{width:100%;height:120px;object-fit:cover;display:block;background:#f0f0f0}
+  .ev span{display:block;padding:7px 10px;font-size:12px;color:var(--gris)}
+  .r-signs{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:10px}
+  .r-sign{text-align:center}
+  .r-sign img{height:66px;object-fit:contain;margin-bottom:6px}
+  .r-sign .line{border-top:1.5px solid var(--carbon);padding-top:7px;font-size:13px}
+  .r-sign .line b{display:block}.r-sign .line span{color:var(--gris);font-size:12px}
+  .r-foot{background:var(--bg);padding:20px 44px;text-align:center;font-size:12px;color:var(--gris)}
+  @media print{body{background:#fff;padding:0}.toolbar{display:none}.sheet{box-shadow:none;border-radius:0;max-width:100%}}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <a href="{{ url_for('garantia_detalle', gid=g.id) }}" class="btn btn-ghost">← Volver a la garantía</a>
+  <button class="btn" onclick="window.print()">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>
+    Descargar PDF
+  </button>
+</div>
+
+<div class="sheet">
+  <div class="r-head">
+    <div class="r-brand">
+      <span class="r-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.3 7 12 2.6 20.7 7v10L12 21.4 3.3 17z"/><path d="M3.3 7 12 11.5 20.7 7"/><path d="M12 11.5V21.4"/></svg></span>
+      <div><div class="r-logo">AVACOM</div><div class="r-logo-sub">Soporte técnico</div></div>
+    </div>
+    <div class="r-doc">
+      <div class="t">Remisión técnica</div>
+      <div class="n">{{ g.remision_tecnica }}</div>
+      <div class="d">{{ g.fecha_visita.strftime('%d/%m/%Y · %H:%M') if g.fecha_visita }}</div>
+    </div>
+  </div>
+
+  <div class="r-body">
+    <div class="r-parties">
+      <div class="r-party">
+        <div class="lbl">Atendió</div>
+        <div class="val"><b>AVACOM S.A.S.</b>Técnico: {{ g.tecnico.nombre if g.tecnico }}<br>{{ g.soporte_label }}</div>
+      </div>
+      <div class="r-party">
+        <div class="lbl">Cliente</div>
+        <div class="val"><b>{{ g.cliente }}</b>{{ g.origen_llamada or '' }}<br>Radicado: {{ g.radicado }}</div>
+      </div>
+    </div>
+
+    <div class="r-result {{ 'ok' if g.solucionado else 'no' }}">
+      {% if g.solucionado %}
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#14633c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg>
+      Problema solucionado
+      {% else %}
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#9a271b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>
+      No solucionado — {{ g.motivo_no_solucion }}
+      {% endif %}
+    </div>
+
+    <div class="r-sec-title">Equipo atendido</div>
+    <table>
+      <thead><tr><th>SKU</th><th>Producto</th><th>Falla reportada</th></tr></thead>
+      <tbody><tr>
+        <td><span class="sku">{{ g.producto.sku if g.producto }}</span></td>
+        <td>{{ g.producto.nombre if g.producto }}</td>
+        <td>{{ g.descripcion or '—' }}</td>
+      </tr></tbody>
+    </table>
+
+    {% if g.motivo_dano or g.quien_llamo %}
+    <div class="block">
+      {% if g.motivo_dano %}<b class="lbl">Causa del daño</b>{{ g.motivo_dano }}{% endif %}
+      {% if g.quien_llamo %}<div style="margin-top:8px"><b class="lbl">Reportado por</b>{{ g.quien_llamo }}{% if g.origen_llamada %} · {{ g.origen_llamada }}{% endif %}</div>{% endif %}
+    </div>
+    {% endif %}
+
+    <div class="r-sec-title">Diagnóstico técnico</div>
+    <div class="block">{{ g.diagnostico or 'Sin diagnóstico.' }}</div>
+
+    {% if g.historial %}
+    <div class="r-sec-title">Historial del caso</div>
+    <div class="block">{{ g.historial }}</div>
+    {% endif %}
+
+    <div class="r-sec-title">Checklist de revisión</div>
+    <div class="chk-grid">
+      {% for item in check_items %}
+      {% set est = estados.get(item, '') %}
+      <div class="chk-it {{ 'yes' if est=='ok' else 'no' }}">
+        {% if est=='ok' %}
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#1E9E62" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        <span>{{ item }}</span><b style="margin-left:auto;color:#1E9E62;font-size:12px">Funciona</b>
+        {% elif est=='falla' %}
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#C01C32" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        <span>{{ item }}</span><b style="margin-left:auto;color:#C01C32;font-size:12px">Falla</b>
+        {% else %}
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#c8c8ce" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+        <span style="color:#b8b8be">{{ item }}</span>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if g.evidencias %}
+    <div class="r-sec-title">Evidencias de la visita</div>
+    <div class="ev-grid">
+      {% for ev in g.evidencias %}
+      <div class="ev"><img src="{{ ev.foto }}" alt="Evidencia"><span>{{ ev.etiqueta }}</span></div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="r-sec-title">Firmas</div>
+    <div class="r-signs">
+      <div class="r-sign">
+        {% if g.firma_tecnico %}<img src="{{ g.firma_tecnico }}" alt="Firma">{% endif %}
+        <div class="line"><b>{{ g.tecnico.nombre if g.tecnico }}</b><span>Técnico AVACOM</span></div>
+      </div>
+      <div class="r-sign">
+        {% if g.firma_cliente %}<img src="{{ g.firma_cliente }}" alt="Firma">{% endif %}
+        <div class="line"><b>{{ g.cliente }}</b><span>Recibe la visita</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="r-foot">Este documento certifica la atención técnica realizada por AVACOM sobre el equipo relacionado. · Remisión {{ g.remision_tecnica }}</div>
+</div>
+</body>
+</html>

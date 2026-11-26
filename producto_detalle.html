@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ p.nombre }}{% endblock %}
+{% block body %}
+<div class="topbar">
+  <div class="tb-back">
+    <a href="{{ url_for('productos') }}" class="back-btn" title="Volver" aria-label="Volver">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div><div class="crumb"><a href="{{ url_for('productos') }}">Productos</a> / Ficha</div><h1>{{ p.nombre }}</h1></div>
+  </div>
+  {% if p.estado=='ACTIVO' %}<span class="badge b-activo" style="font-size:13px;padding:7px 16px">● Activo</span>
+  {% elif p.estado=='BAJO' %}<span class="badge b-bajo" style="font-size:13px;padding:7px 16px">● Bajo stock</span>
+  {% else %}<span class="badge b-agotado" style="font-size:13px;padding:7px 16px">● Agotado</span>{% endif %}
+</div>
+
+<div class="form-2col">
+  <!-- datos -->
+  <div class="card">
+    <div class="form-section-head">
+      <span class="fs-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg></span>
+      <div><h2 style="margin:0">Detalle del producto</h2><p class="fs-sub">Información registrada</p></div>
+    </div>
+    <div class="detail-grid">
+      <div class="dt"><span class="dt-l">SKU</span><span class="sku">{{ p.sku }}</span></div>
+      <div class="dt"><span class="dt-l">Categoría</span><span class="cat-tag">{{ p.categoria.nombre if p.categoria }}</span></div>
+      <div class="dt"><span class="dt-l">Precio</span><span class="dt-v">${{ "{:,.0f}".format(p.precio) }}</span></div>
+      <div class="dt"><span class="dt-l">Stock actual</span><span class="dt-v">{{ p.stock }} unidades</span></div>
+      <div class="dt"><span class="dt-l">Stock mínimo</span><span class="dt-v">{{ p.stock_minimo }}</span></div>
+      <div class="dt"><span class="dt-l">Registrado</span><span class="dt-v">{{ p.fecha_registro.strftime('%d/%m/%Y') }}</span></div>
+    </div>
+  </div>
+
+  <!-- código de barras / etiqueta -->
+  <div class="card">
+    <div class="form-section-head">
+      <span class="fs-ic ic-scan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6v12M8 6v12M12 6v12M16 6v12M20 6v12"/></svg></span>
+      <div><h2 style="margin:0">Etiqueta del producto</h2><p class="fs-sub">Lista para imprimir y pegar</p></div>
+    </div>
+    <!-- etiqueta imprimible -->
+    <div class="label-card" id="etiqueta">
+      <div class="label-brand">AVACOM</div>
+      <div class="label-name">{{ p.nombre }}</div>
+      <img class="label-bars" src="{{ url_for('barcode_svg', code=p.codigo_barras or p.sku) }}" alt="Código de barras">
+      <div class="label-sku">{{ p.codigo_barras or p.sku }}</div>
+    </div>
+    <button onclick="imprimirEtiqueta()" class="btn btn-full" style="margin-top:16px">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>
+      Imprimir etiqueta</button>
+  </div>
+</div>
+
+<script>
+function imprimirEtiqueta(){
+  var cont = document.getElementById('etiqueta').innerHTML;
+  var w = window.open('', '', 'width=400,height=300');
+  w.document.write('<html><head><title>Etiqueta AVACOM</title><style>'+
+    'body{font-family:Arial,sans-serif;text-align:center;padding:16px}'+
+    '.label-brand{color:#C01C32;font-weight:800;letter-spacing:1px}'+
+    '.label-name{font-size:14px;margin:6px 0;font-weight:600}'+
+    '.label-bars{width:90%;max-width:260px}.label-sku{font-family:monospace;font-size:13px;margin-top:4px}'+
+    '</style></head><body>'+cont+'</body></html>');
+  w.document.close(); w.focus(); setTimeout(function(){w.print();w.close();},300);
+}
+</script>
+{% endblock %}

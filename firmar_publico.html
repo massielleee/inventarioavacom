@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Firmar asistencia · AVACOM</title>
+<style>
+  :root{--rojo:#C01C32;--rojo-prof:#8E1322;--carbon:#1A1A1E;--gris:#6B7280;--line:#E7E9EE;--bg:#F6F7F9;--verde:#1E9E62}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--carbon);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px}
+  .wrap{max-width:520px;width:100%}
+  .head{background:linear-gradient(135deg,var(--rojo),var(--rojo-prof));color:#fff;border-radius:18px 18px 0 0;padding:28px 30px;display:flex;align-items:center;gap:14px}
+  .mark{width:46px;height:46px;border-radius:12px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);display:grid;place-items:center}
+  .mark svg{width:26px;height:26px}
+  .logo{font-size:24px;font-weight:800;line-height:1}
+  .logo-sub{font-size:10px;letter-spacing:2px;text-transform:uppercase;opacity:.8;margin-top:3px}
+  .card{background:#fff;border-radius:0 0 18px 18px;padding:28px 30px;box-shadow:0 12px 40px rgba(0,0,0,.08)}
+  .cap-title{font-size:19px;font-weight:700;margin-bottom:4px}
+  .cap-meta{color:var(--gris);font-size:13.5px;margin-bottom:22px;line-height:1.7}
+  .cap-meta b{color:var(--carbon)}
+  label{display:block;font-size:13px;font-weight:600;margin-bottom:7px}
+  input[type=text]{width:100%;padding:13px 15px;border:1.5px solid var(--line);border-radius:11px;font-size:15px;font-family:inherit;margin-bottom:16px}
+  input:focus{outline:none;border-color:var(--rojo)}
+  .sign-wrap{position:relative;border:1.5px dashed var(--line);border-radius:12px;background:#FBFAF8;margin-bottom:8px}
+  canvas{display:block;width:100%;height:160px;touch-action:none}
+  .sign-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#b8b8be;font-size:14px;pointer-events:none}
+  .sign-clear{position:absolute;top:8px;right:8px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px}
+  .btn{width:100%;background:var(--rojo);color:#fff;border:none;border-radius:12px;padding:15px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px}
+  .btn:hover{background:var(--rojo-prof)}
+  .msg{padding:14px 16px;border-radius:11px;font-size:14px;margin-bottom:18px;font-weight:600}
+  .msg.err{background:#FCE8EB;color:#9a271b}
+  .state{text-align:center;padding:30px 10px}
+  .state svg{width:64px;height:64px;margin-bottom:14px}
+  .state h2{font-size:22px;margin-bottom:8px}
+  .state p{color:var(--gris);font-size:14.5px;line-height:1.6}
+  .foot{text-align:center;color:var(--gris);font-size:12px;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.3 7 12 2.6 20.7 7v10L12 21.4 3.3 17z"/><path d="M3.3 7 12 11.5 20.7 7"/><path d="M12 11.5V21.4"/></svg></span>
+    <div><div class="logo">AVACOM</div><div class="logo-sub">Asistencia a capacitación</div></div>
+  </div>
+  <div class="card">
+    {% if cerrada %}
+      <div class="state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#9a271b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+        <h2>Registro cerrado</h2>
+        <p>La capacitación <b>{{ c.titulo }}</b> ya finalizó y no admite más firmas.</p>
+      </div>
+    {% elif ok %}
+      <div class="state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1E9E62" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg>
+        <h2>¡Asistencia registrada!</h2>
+        <p>Gracias por firmar tu asistencia a <b>{{ c.titulo }}</b>. Tu firma quedó guardada en el acta.</p>
+      </div>
+    {% else %}
+      <div class="cap-title">{{ c.titulo }}</div>
+      <div class="cap-meta">
+        {% if c.capacitador %}Capacitador: <b>{{ c.capacitador }}</b><br>{% endif %}
+        {% if c.fecha %}{{ c.fecha.strftime('%d/%m/%Y') }}{% if c.hora %} · {{ c.hora }}{% endif %}<br>{% endif %}
+        {{ c.modalidad_label }}{% if c.lugar %} · {{ c.lugar }}{% endif %}
+      </div>
+      {% if error %}<div class="msg err">{{ error }}</div>{% endif %}
+      <form method="post">
+        <label>Nombre completo</label>
+        <input type="text" name="nombre" required placeholder="Tu nombre y apellido">
+        <label>Documento (opcional)</label>
+        <input type="text" name="documento" placeholder="Cédula / identificación">
+        <label>Firma</label>
+        <div class="sign-wrap">
+          <canvas id="fp" width="460" height="160"></canvas>
+          <div class="sign-ph" id="ph">✍ Firma aquí con el dedo o el mouse</div>
+          <button type="button" class="sign-clear" id="cl"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg> Limpiar</button>
+        </div>
+        <input type="hidden" name="firma" id="fpData">
+        <button class="btn" type="submit">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+          Registrar mi asistencia</button>
+      </form>
+    {% endif %}
+  </div>
+  <div class="foot">AVACOM · Ecosistemas educativos</div>
+</div>
+<script>
+(function(){
+  var c=document.getElementById('fp'); if(!c)return;
+  var ctx=c.getContext('2d'),draw=false,has=false,ph=document.getElementById('ph');
+  // ajustar resolución real al tamaño en pantalla
+  function fit(){var r=c.getBoundingClientRect();c.width=r.width*2;c.height=r.height*2;ctx.scale(2,2);ctx.strokeStyle="#1A1A1E";ctx.lineWidth=2.2;ctx.lineCap="round";ctx.lineJoin="round";}
+  fit();
+  function pos(e){var r=c.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return {x:(t.clientX-r.left),y:(t.clientY-r.top)};}
+  function st(e){draw=true;has=true;ph.style.display='none';var p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);e.preventDefault();}
+  function mv(e){if(!draw)return;var p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();e.preventDefault();}
+  function en(){draw=false;if(has)document.getElementById('fpData').value=c.toDataURL('image/png');}
+  c.addEventListener('mousedown',st);c.addEventListener('mousemove',mv);window.addEventListener('mouseup',en);
+  c.addEventListener('touchstart',st);c.addEventListener('touchmove',mv);c.addEventListener('touchend',en);
+  document.getElementById('cl').addEventListener('click',function(){ctx.clearRect(0,0,c.width,c.height);has=false;ph.style.display='flex';document.getElementById('fpData').value='';});
+})();
+</script>
+</body>
+</html>

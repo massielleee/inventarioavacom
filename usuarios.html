@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Usuarios{% endblock %}
+{% block body %}
+<div class="topbar">
+  <div><div class="crumb">Administración</div><h1>Usuarios</h1></div>
+  <a href="{{ url_for('usuario_nuevo') }}" class="btn">+ Nuevo usuario</a>
+</div>
+<div class="card">
+  <table>
+    <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th></tr></thead>
+    <tbody>
+      {% for u in items %}
+      <tr>
+        <td><b>{{ u.nombre }}</b></td>
+        <td>{{ u.correo }}</td>
+        <td>
+          {% if u.rol=='ADMIN' %}<span class="badge b-rech">Administrador</span>
+          {% elif u.rol=='BODEGA' %}<span class="badge b-rev">Bodega</span>
+          {% else %}<span class="badge b-rec">Técnico</span>{% endif %}
+        </td>
+        <td>{% if u.activo %}<span class="badge b-activo">Activo</span>{% else %}<span class="badge b-agotado">Inactivo</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

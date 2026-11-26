@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Despacho #{{ d.id }}{% endblock %}
+{% block body %}
+<div class="topbar">
+  <div class="tb-back">
+    <a href="{{ url_for('despachos') }}" class="back-btn" title="Volver" aria-label="Volver">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div><div class="crumb"><a href="{{ url_for('despachos') }}">Despachos</a> / #{{ d.id }}</div><h1>Despacho de {{ d.producto.nombre }}</h1></div>
+  </div>
+  {% if d.estado=='DESPACHADO' %}<span class="badge b-desp" style="font-size:13px;padding:8px 18px">● Despachado</span>
+  {% else %}<span class="badge b-pend" style="font-size:13px;padding:8px 18px">● Pendiente</span>{% endif %}
+</div>
+
+<div class="desp-layout">
+  <!-- ===== Checklist con evidencias ===== -->
+  <div class="card">
+    <div class="form-section-head">
+      <span class="fs-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg></span>
+      <div><h2 style="margin:0">Checklist de verificación con evidencia</h2><p class="fs-sub">Adjunta una foto por cada ítem para habilitar el despacho</p></div>
+    </div>
+    {% set n = evidencias|length %}{% set total = checklist_items|length %}
+    <div class="progress"><div class="bar" style="width: {{ (n/total*100)|round }}%"></div></div>
+    <p class="prog-txt">{{ n }} de {{ total }} evidencias cargadas</p>
+
+    <div class="chk-list">
+      {% for item in checklist_items %}
+      {% set idx = loop.index0 %}{% set foto = evidencias.get(idx) %}
+      <div class="chk-row {{ 'done' if foto }}">
+        <div class="chk-state">
+          {% if foto %}<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#1E9E62" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" fill="#E3F5EC" stroke="#1E9E62"/><path d="M8 12l3 3 5-5"/></svg>
+          {% else %}<span class="chk-num">{{ loop.index }}</span>{% endif %}
+        </div>
+        <div class="chk-main">
+          <div class="chk-txt">{{ item }}</div>
+          {% if foto %}
+            <div class="chk-evidence"><img src="{{ foto }}" alt="Evidencia"><span class="ev-ok">✓ Evidencia adjunta</span></div>
+          {% endif %}
+        </div>
+        {% if d.estado!='DESPACHADO' %}
+        <form method="post" class="chk-upload" enctype="multipart/form-data">
+          <input type="hidden" name="accion" value="subir_evidencia">
+          <input type="hidden" name="item_idx" value="{{ idx }}">
+          <input type="hidden" name="foto" class="foto-data">
+          <label class="upl-btn">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L8 6H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+            {{ 'Cambiar foto' if foto else 'Subir foto' }}
+            <input type="file" accept="image/*" capture="environment" class="foto-input" hidden>
+          </label>
+        </form>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if d.estado!='DESPACHADO' %}
+    <!-- firma del checklist -->
+    <div class="chk-firma-box">
+      <h3 class="chk-firma-title">Firma de quien ejecuta el checklist <span class="req">*</span></h3>
+      {% if d.firma_checklist %}
+        <div class="firma-ok"><img src="{{ d.firma_checklist }}" alt="Firma"><span>✓ Checklist firmado por {{ d.responsable }}</span></div>
+      {% else %}
+      <form method="post" id="chkfirmaform">
+        <input type="hidden" name="accion" value="firmar_checklist">
+        <div class="sign-wrap">
+          <canvas id="firmaChk" class="sign-canvas" width="560" height="130"></canvas>
+          <div class="sign-ph" id="signPh2">✍ Firma aquí para validar el checklist</div>
+          <button type="button" class="sign-clear" id="signClear2"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg> Limpiar</button>
+        </div>
+        <input type="hidden" name="firma_checklist" id="firmaChkData">
+        <button class="btn btn-ghost btn-sm" type="submit" style="margin-top:12px">Guardar firma del checklist</button>
+      </form>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ===== Lateral: detalle + despachar ===== -->
+  <div class="desp-side">
+    <div class="card">
+      <h2 style="font-size:17px;margin-bottom:14px">Detalle</h2>
+      <div class="side-rows">
+        <div><span>SKU</span><span class="sku">{{ d.producto.sku }}</span></div>
+        <div><span>Cantidad</span><b>{{ d.cantidad }}</b></div>
+        <div><span>Stock disp.</span><b>{{ d.producto.stock }}</b></div>
+        <div><span>Cliente</span>{{ d.cliente or '—' }}</div>
+        <div><span>Destino</span>{{ d.destino }}</div>
+        <div><span>Responsable</span>{{ d.responsable }}</div>
+        <div><span>Creado</span>{{ d.fecha_creacion.strftime('%d/%m/%Y %H:%M') }}</div>
+      </div>
+      <!-- código de barras del producto para bodega -->
+      <div class="barcode-mini">
+        <img src="{{ url_for('barcode_svg', code=d.producto.codigo_barras or d.producto.sku) }}" alt="Código">
+        <span>{{ d.producto.codigo_barras or d.producto.sku }}</span>
+      </div>
+    </div>
+
+    {% if d.estado!='DESPACHADO' %}
+    <div class="card">
+      <h2 style="font-size:17px;margin-bottom:14px">Despachar</h2>
+      {% set listo = (evidencias|length == checklist_items|length) and d.firma_checklist %}
+      {% if listo %}
+        <p class="desp-ready">✓ Todo verificado. Listo para despachar.</p>
+        <form method="post"><input type="hidden" name="accion" value="despachar">
+          <button class="btn btn-ok btn-full" type="submit">Confirmar despacho →</button></form>
+      {% else %}
+        <p class="desp-pending">⚠ Para despachar necesitas:</p>
+        <ul class="desp-reqs">
+          <li class="{{ 'ok' if evidencias|length==checklist_items|length }}">Todas las fotos de evidencia ({{ evidencias|length }}/{{ checklist_items|length }})</li>
+          <li class="{{ 'ok' if d.firma_checklist }}">Firma del checklist</li>
+        </ul>
+        <button class="btn btn-full" disabled style="opacity:.5;cursor:not-allowed">Despachar (bloqueado)</button>
+      {% endif %}
+    </div>
+    {% else %}
+    <div class="card desp-done">
+      <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#1E9E62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg>
+      <h2 style="margin:12px 0 4px">¡Despachado!</h2>
+      <p style="color:var(--gris);font-size:14px">Remisión {{ d.remision }}</p>
+      <a href="{{ url_for('remision', did=d.id) }}" class="btn btn-full" style="margin-top:14px">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><path d="M9 13h6M9 17h6"/></svg>
+        Ver remisión</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+// subida de fotos: comprimir en el navegador y autoenviar (evita error 413)
+document.querySelectorAll('.foto-input').forEach(function(inp){
+  inp.addEventListener('change',function(){
+    var f=inp.files[0]; if(!f) return;
+    avacomComprimirFoto(f, function(dataUrl){
+      var form=inp.closest('form');
+      form.querySelector('.foto-data').value=dataUrl;
+      form.submit();
+    });
+  });
+});
+// firma del checklist
+(function(){
+  var c=document.getElementById('firmaChk'); if(!c)return;
+  var ctx=c.getContext('2d'),draw=false,has=false,ph=document.getElementById('signPh2');
+  ctx.strokeStyle="#1A1A1E";ctx.lineWidth=2.2;ctx.lineCap="round";ctx.lineJoin="round";
+  function pos(e){var r=c.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return {x:(t.clientX-r.left)*(c.width/r.width),y:(t.clientY-r.top)*(c.height/r.height)};}
+  function st(e){draw=true;has=true;ph.style.display='none';var p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);e.preventDefault();}
+  function mv(e){if(!draw)return;var p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();e.preventDefault();}
+  function en(){draw=false;if(has)document.getElementById('firmaChkData').value=c.toDataURL('image/png');}
+  c.addEventListener('mousedown',st);c.addEventListener('mousemove',mv);window.addEventListener('mouseup',en);
+  c.addEventListener('touchstart',st);c.addEventListener('touchmove',mv);c.addEventListener('touchend',en);
+  document.getElementById('signClear2').addEventListener('click',function(){ctx.clearRect(0,0,c.width,c.height);has=false;ph.style.display='flex';document.getElementById('firmaChkData').value='';});
+})();
+</script>
+{% endblock %}

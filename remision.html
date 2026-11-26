@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Remisión {{ d.remision }} · AVACOM</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--rojo:#C01C32;--rojo-prof:#8E1322;--carbon:#1A1A1E;--gris:#6B7280;--line:#E7E9EE;--bg:#F6F7F9}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--carbon);padding:30px}
+  .toolbar{max-width:800px;margin:0 auto 18px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--rojo);color:#fff;border:none;border-radius:10px;padding:12px 22px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;text-decoration:none}
+  .btn:hover{background:var(--rojo-prof)}
+  .btn-ghost{background:#fff;color:var(--carbon);border:1.5px solid var(--line)}
+  /* hoja */
+  .sheet{max-width:800px;margin:0 auto;background:#fff;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.08);overflow:hidden}
+  .r-head{background:linear-gradient(135deg,var(--rojo) 0%,var(--rojo-prof) 100%);color:#fff;padding:36px 44px;display:flex;justify-content:space-between;align-items:flex-start}
+  .r-brand{display:flex;align-items:center;gap:14px}
+  .r-mark{width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);display:grid;place-items:center}
+  .r-mark svg{width:30px;height:30px}
+  .r-logo{font-size:30px;font-weight:800;letter-spacing:.5px;line-height:1}
+  .r-logo-sub{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;opacity:.75;margin-top:3px}
+  .r-doc{text-align:right}
+  .r-doc .t{font-size:13px;text-transform:uppercase;letter-spacing:2px;opacity:.8}
+  .r-doc .n{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;margin-top:4px}
+  .r-doc .d{font-size:13px;opacity:.85;margin-top:4px}
+  .r-body{padding:36px 44px}
+  .r-parties{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-bottom:30px}
+  .r-party .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gris);font-weight:700;margin-bottom:8px}
+  .r-party .val{font-size:15px;line-height:1.7}
+  .r-party .val b{display:block;font-size:16px}
+  .r-sec-title{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--rojo);font-weight:800;margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid var(--line)}
+  table{width:100%;border-collapse:collapse;margin-bottom:28px}
+  thead th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--gris);padding:10px 12px;background:var(--bg);border-radius:6px}
+  thead th.c{text-align:center}thead th.r{text-align:right}
+  tbody td{padding:14px 12px;border-bottom:1px solid var(--line);font-size:14.5px}
+  tbody td.c{text-align:center}tbody td.r{text-align:right}
+  .sku{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--rojo-prof);background:#FCE8EB;padding:3px 9px;border-radius:6px;font-size:13px}
+  .chk-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:28px}
+  .chk-it{display:flex;align-items:center;gap:9px;font-size:13.5px;color:#374151}
+  .chk-it svg{flex:0 0 auto}
+  .r-signs{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:10px}
+  .r-sign{text-align:center}
+  .r-sign img{height:70px;object-fit:contain;margin-bottom:6px}
+  .r-sign .line{border-top:1.5px solid var(--carbon);padding-top:7px;font-size:13px}
+  .r-sign .line b{display:block}.r-sign .line span{color:var(--gris);font-size:12px}
+  .r-foot{background:var(--bg);padding:20px 44px;text-align:center;font-size:12px;color:var(--gris)}
+  @media print{body{background:#fff;padding:0}.toolbar{display:none}.sheet{box-shadow:none;border-radius:0;max-width:100%}}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <a href="{{ url_for('despacho_detalle', did=d.id) }}" class="btn btn-ghost">← Volver al despacho</a>
+  <button class="btn" onclick="window.print()">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>
+    Descargar PDF
+  </button>
+</div>
+
+<div class="sheet">
+  <div class="r-head">
+    <div class="r-brand">
+      <span class="r-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.3 7 12 2.6 20.7 7v10L12 21.4 3.3 17z"/><path d="M3.3 7 12 11.5 20.7 7"/><path d="M12 11.5V21.4"/></svg></span>
+      <div><div class="r-logo">AVACOM</div><div class="r-logo-sub">Ecosistemas educativos</div></div>
+    </div>
+    <div class="r-doc">
+      <div class="t">Remisión de despacho</div>
+      <div class="n">{{ d.remision }}</div>
+      <div class="d">{{ d.fecha_despacho.strftime('%d/%m/%Y · %H:%M') }}</div>
+    </div>
+  </div>
+
+  <div class="r-body">
+    <div class="r-parties">
+      <div class="r-party">
+        <div class="lbl">Despacha</div>
+        <div class="val"><b>AVACOM S.A.S.</b>Ecosistemas educativos<br>Responsable: {{ d.responsable }}</div>
+      </div>
+      <div class="r-party">
+        <div class="lbl">Destino / Cliente</div>
+        <div class="val"><b>{{ d.cliente or d.destino }}</b>{{ d.destino }}</div>
+      </div>
+    </div>
+
+    <div class="r-sec-title">Productos despachados</div>
+    <table>
+      <thead><tr><th>SKU</th><th>Producto</th><th class="c">Cantidad</th></tr></thead>
+      <tbody><tr>
+        <td><span class="sku">{{ d.producto.sku }}</span></td>
+        <td>{{ d.producto.nombre }}</td>
+        <td class="c"><b>{{ d.cantidad }}</b></td>
+      </tr></tbody>
+    </table>
+
+    <div class="r-sec-title">Checklist de verificación cumplido</div>
+    <div class="chk-grid">
+      {% for item in checklist_items %}
+      <div class="chk-it"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#1E9E62" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> {{ item }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="r-sec-title">Firmas</div>
+    <div class="r-signs">
+      <div class="r-sign">
+        {% if d.firma %}<img src="{{ d.firma }}" alt="Firma">{% endif %}
+        <div class="line"><b>{{ d.responsable }}</b><span>Responsable del despacho</span></div>
+      </div>
+      <div class="r-sign">
+        {% if d.firma_checklist %}<img src="{{ d.firma_checklist }}" alt="Firma">{% endif %}
+        <div class="line"><b>{{ d.responsable }}</b><span>Verificación del checklist</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="r-foot">Este documento certifica la entrega de los productos relacionados, verificados según el checklist de calidad de AVACOM. · Remisión {{ d.remision }}</div>
+</div>
+</body>
+</html>

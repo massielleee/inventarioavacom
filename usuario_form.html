@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Nuevo usuario{% endblock %}
+{% block body %}
+<div class="topbar">
+  <div class="tb-back">
+    <a href="{{ url_for('usuarios') }}" class="back-btn" title="Volver" aria-label="Volver">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div><div class="crumb"><a href="{{ url_for('usuarios') }}">Usuarios</a> / Nuevo</div><h1>Crear usuario</h1></div>
+  </div>
+</div>
+<div class="card" style="max-width:640px">
+  <form method="post">
+    <div class="field"><label>Nombre completo</label><input name="nombre" required></div>
+    <div class="field"><label>Correo electrónico</label><input name="correo" type="email" required></div>
+    <div class="form-grid">
+      <div class="field"><label>Rol</label>
+        <select name="rol">
+          <option value="ADMIN">Administrador</option>
+          <option value="BODEGA">Bodega</option>
+          <option value="TECNICO">Técnico</option>
+          <option value="CAPACITADOR">Capacitador</option>
+        </select></div>
+      <div class="field"><label>Contraseña</label><input name="password" type="password" required></div>
+    </div>
+    <div class="form-actions">
+      <a href="{{ url_for('usuarios') }}" class="btn btn-ghost">Cancelar</a>
+      <button class="btn btn-ok" type="submit">Crear usuario</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

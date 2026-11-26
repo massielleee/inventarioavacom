@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Capacitaciones{% endblock %}
+{% block body %}
+<div class="topbar">
+  <div><div class="crumb">Formación</div><h1>Capacitaciones</h1></div>
+  <div style="display:flex;gap:10px">
+    <a href="{{ url_for('capacitaciones_archivo') }}" class="btn btn-ghost">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>
+      Archivo</a>
+    <a href="{{ url_for('capacitacion_nueva') }}" class="btn">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      Agendar capacitación</a>
+  </div>
+</div>
+
+<!-- Pestañas -->
+<div class="tabs">
+  <button class="tab on" data-tab="pend" onclick="verTab('pend',this)">
+    Pendientes <span class="tab-count">{{ pendientes|length }}</span></button>
+  <button class="tab" data-tab="real" onclick="verTab('real',this)">
+    Realizadas <span class="tab-count">{{ realizadas|length }}</span></button>
+</div>
+
+<!-- Pendientes -->
+<div id="tab-pend" class="tab-panel">
+  <div class="card">
+    <table class="tbl-pro">
+      <thead><tr><th>Código</th><th>Capacitación</th><th>Capacitador</th><th class="c">Modalidad</th><th class="c">Fecha</th><th class="c">Firmas</th><th></th></tr></thead>
+      <tbody>
+        {% for c in pendientes %}
+        <tr>
+          <td><span class="sku">{{ c.codigo }}</span></td>
+          <td class="t-name">{{ c.titulo }}</td>
+          <td>{{ c.capacitador or '—' }}</td>
+          <td class="c">{% if c.modalidad=='VIRTUAL' %}<span class="badge b-virtual">Virtual</span>{% else %}<span class="badge b-presencial">Presencial</span>{% endif %}</td>
+          <td class="c">{{ c.fecha.strftime('%d/%m/%Y') if c.fecha else '—' }}</td>
+          <td class="c"><b>{{ c.firmados }}</b>{% if c.num_esperados %}<span style="color:var(--gris)"> / {{ c.num_esperados }}</span>{% endif %}</td>
+          <td class="c acciones">
+            <a href="{{ url_for('capacitacion_detalle', cid=c.id) }}" class="icon-link" title="Abrir"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></a>
+            {% if session.rol == 'ADMIN' %}
+            <form method="post" action="{{ url_for('capacitacion_eliminar', cid=c.id) }}" style="display:inline"
+                  onsubmit="return confirm('¿Eliminar la capacitación {{ c.codigo }}? Se borran también sus firmas y fotos. Esta acción no se puede deshacer.');">
+              <button type="submit" class="icon-del" title="Eliminar">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg>
+              </button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}<tr><td colspan="7" class="empty">No hay capacitaciones pendientes. Agenda una nueva.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Realizadas -->
+<div id="tab-real" class="tab-panel" style="display:none">
+  <div class="card">
+    <table class="tbl-pro">
+      <thead><tr><th>Código</th><th>Capacitación</th><th>Capacitador</th><th class="c">Acta</th><th class="c">Asistentes</th><th class="c">Realizada</th><th></th></tr></thead>
+      <tbody>
+        {% for c in realizadas %}
+        <tr>
+          <td><span class="sku">{{ c.codigo }}</span></td>
+          <td class="t-name">{{ c.titulo }}</td>
+          <td>{{ c.capacitador or '—' }}</td>
+          <td class="c"><span class="sku">{{ c.acta }}</span></td>
+          <td class="c"><b>{{ c.firmados }}</b></td>
+          <td class="c">{{ c.fecha_cierre.strftime('%d/%m/%Y') if c.fecha_cierre else '—' }}</td>
+          <td class="c acciones">
+            <a href="{{ url_for('acta_capacitacion', cid=c.id) }}" class="icon-link" title="Ver acta"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/></svg></a>
+            {% if session.rol == 'ADMIN' %}
+            <form method="post" action="{{ url_for('capacitacion_eliminar', cid=c.id) }}" style="display:inline"
+                  onsubmit="return confirm('¿Eliminar la capacitación {{ c.codigo }} y su acta? Esta acción no se puede deshacer.');">
+              <button type="submit" class="icon-del" title="Eliminar">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg>
+              </button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}<tr><td colspan="7" class="empty">Aún no hay capacitaciones realizadas.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+function verTab(t, btn){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('tab-pend').style.display = t==='pend'?'block':'none';
+  document.getElementById('tab-real').style.display = t==='real'?'block':'none';
+}
+</script>
+{% endblock %}
