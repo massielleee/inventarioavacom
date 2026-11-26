@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block body %}
+<div class="topbar">
+  <div><div class="crumb">Inicio</div><h1>Panel de control</h1></div>
+  <div class="tb-right">
+    <span class="tb-date">{{ hoy_txt }}</span>
+    <span class="chip-rol">{{ current_user.rol_label }}</span>
+    {% if session.rol == 'ADMIN' %}
+    <form method="post" action="{{ url_for('admin_limpiar') }}" style="display:inline"
+          onsubmit="return confirm('Esto va a BORRAR todas las garantías, despachos, capacitaciones y movimientos para dejar el sistema limpio.\n\nLos productos y usuarios se conservan.\n\n¿Seguro que quieres continuar?');">
+      <button type="submit" class="btn btn-ghost btn-sm" title="Dejar el sistema limpio para una prueba" style="color:var(--rojo);border-color:var(--rojo)">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg>
+        Limpiar sistema
+      </button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+<!-- ===== KPIs ===== -->
+<div class="kpis">
+  <div class="kpi">
+    <span class="kpi-ic ic-rojo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
+    <div class="k-val">{{ stats.productos }}</div><div class="k-lbl">Productos registrados</div>
+  </div>
+  <div class="kpi">
+    <span class="kpi-ic ic-verde"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16V8a2 2 0 0 1 1-1.7l7-4a2 2 0 0 1 2 0l7 4A2 2 0 0 1 21 8v8a2 2 0 0 1-1 1.7l-7 4a2 2 0 0 1-2 0l-7-4A2 2 0 0 1 3 16z"/></svg></span>
+    <div class="k-val">{{ stats.stock_total }}</div><div class="k-lbl">Unidades en stock</div>
+  </div>
+  <div class="kpi {{ 'alert' if stats.bajo_stock }}">
+    <span class="kpi-ic ic-ambar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 2.4 17a1.8 1.8 0 0 0 1.6 2.8h16a1.8 1.8 0 0 0 1.6-2.8L13.7 3.9a1.8 1.8 0 0 0-3.4 0z"/><path d="M12 9v4M12 16.5v.5"/></svg></span>
+    <div class="k-val">{{ stats.bajo_stock }}</div><div class="k-lbl">Productos en bajo stock</div>
+  </div>
+  <div class="kpi">
+    <span class="kpi-ic ic-azul"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg></span>
+    <div class="k-val">{{ stats.movimientos_hoy }}</div><div class="k-lbl">Movimientos de hoy</div>
+  </div>
+</div>
+
+<!-- ===== GRÁFICA + MINI KPIs ===== -->
+<div class="dash-grid">
+  <div class="card">
+    <div class="card-head"><h2>Resumen del inventario</h2>
+      <span class="chip">Vista general</span></div>
+    {% set maxv = [stats.productos, stats.stock_total, stats.movimientos_hoy, stats.despachos_pendientes, stats.garantias_abiertas, 1]|max %}
+    <div class="chart">
+      {% for b in barras %}
+      <div class="bar-col">
+        <div class="bar-track">
+          <div class="bar-fill" style="height: {{ (b.val / maxv * 100)|round(1) }}%; background: {{ b.color }}">
+            <span class="bar-num">{{ b.val }}</span>
+          </div>
+        </div>
+        <div class="bar-lbl">{{ b.lbl }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="side-metrics">
+    {% if rol in ['ADMIN','BODEGA'] %}
+    <div class="metric-card">
+      <span class="metric-ic ic-ambar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h11v9H2z"/><path d="M13 9h4l4 4v2h-8z"/><circle cx="6.5" cy="18" r="1.9"/><circle cx="17" cy="18" r="1.9"/></svg></span>
+      <div><div class="m-val">{{ stats.despachos_pendientes }}</div><div class="m-lbl">Despachos pendientes</div></div>
+    </div>
+    {% endif %}
+    {% if rol in ['ADMIN','TECNICO'] %}
+    <div class="metric-card">
+      <span class="metric-ic ic-rojo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a3.5 3.5 0 0 0-4.7 4.3L3.4 17.2a1.8 1.8 0 0 0 2.5 2.5l6.6-6.6a3.5 3.5 0 0 0 4.3-4.7l-2.2 2.2-2.3-.5-.5-2.3z"/></svg></span>
+      <div><div class="m-val">{{ stats.garantias_abiertas }}</div><div class="m-lbl">Garantías abiertas</div></div>
+    </div>
+    {% endif %}
+    <div class="metric-card hint">
+      <span class="metric-ic ic-verde"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+      <div><div class="m-lbl" style="margin:0">Inventario saludable</div><div class="m-sub">{{ stats.productos - stats.bajo_stock }} productos con stock óptimo</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TABLA ===== -->
+<div class="card">
+  <div class="card-head"><h2>Últimos productos registrados</h2>
+    <a href="{{ url_for('productos') }}" class="btn btn-ghost btn-sm">Ver todos →</a></div>
+  <table>
+    <thead><tr><th>SKU</th><th>Producto</th><th>Categoría</th><th>Stock</th><th>Estado</th></tr></thead>
+    <tbody>
+      {% for p in ultimos %}
+      <tr>
+        <td><span class="sku">{{ p.sku }}</span></td>
+        <td>{{ p.nombre }}</td>
+        <td>{{ p.categoria.nombre if p.categoria }}</td>
+        <td>{{ p.stock }}</td>
+        <td>
+          {% if p.estado=='ACTIVO' %}<span class="badge b-activo">Activo</span>
+          {% elif p.estado=='BAJO' %}<span class="badge b-bajo">Bajo</span>
+          {% else %}<span class="badge b-agotado">Agotado</span>{% endif %}
+        </td>
+      </tr>
+      {% else %}<tr><td colspan="5" class="empty">Aún no hay productos.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

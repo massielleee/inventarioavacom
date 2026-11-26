@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Acta {{ c.acta }} · AVACOM</title>
+<style>
+  :root{--rojo:#C01C32;--rojo-prof:#8E1322;--carbon:#1A1A1E;--gris:#6B7280;--line:#E7E9EE;--bg:#F6F7F9}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--carbon);padding:30px}
+  .toolbar{max-width:860px;margin:0 auto 18px;display:flex;justify-content:space-between;gap:12px}
+  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--rojo);color:#fff;border:none;border-radius:10px;padding:12px 22px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;text-decoration:none}
+  .btn:hover{background:var(--rojo-prof)}
+  .btn-ghost{background:#fff;color:var(--carbon);border:1.5px solid var(--line)}
+  .sheet{max-width:860px;margin:0 auto;background:#fff;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.08);overflow:hidden}
+  .r-head{background:linear-gradient(135deg,var(--rojo),var(--rojo-prof));color:#fff;padding:34px 44px;display:flex;justify-content:space-between;align-items:flex-start}
+  .r-brand{display:flex;align-items:center;gap:14px}
+  .r-mark{width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);display:grid;place-items:center}
+  .r-mark svg{width:30px;height:30px}
+  .r-logo{font-size:30px;font-weight:800;letter-spacing:.5px;line-height:1}
+  .r-logo-sub{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;opacity:.75;margin-top:3px}
+  .r-doc{text-align:right}
+  .r-doc .t{font-size:13px;text-transform:uppercase;letter-spacing:2px;opacity:.8}
+  .r-doc .n{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:24px;font-weight:700;margin-top:4px}
+  .r-body{padding:34px 44px}
+  .r-title{font-size:21px;font-weight:800;margin-bottom:4px}
+  .r-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 28px;margin:22px 0 28px;font-size:14px}
+  .r-grid .it .l{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--gris);font-weight:700}
+  .r-grid .it .v{font-weight:500;margin-top:2px}
+  .r-sec-title{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--rojo);font-weight:800;margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid var(--line)}
+  table{width:100%;border-collapse:collapse;margin-bottom:26px}
+  thead th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--gris);padding:9px 12px;background:var(--bg)}
+  thead th.c{text-align:center}
+  tbody td{padding:10px 12px;border-bottom:1px solid var(--line);font-size:13.5px;vertical-align:middle}
+  tbody td.c{text-align:center}
+  .n-col{width:40px;color:var(--gris);font-family:'JetBrains Mono',monospace}
+  .firma-cell img{height:38px;object-fit:contain}
+  .ev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:26px}
+  .ev{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .ev img{width:100%;height:110px;object-fit:cover;display:block;background:#eee}
+  .r-sign{max-width:300px;margin-top:8px;text-align:center}
+  .r-sign img{height:66px;object-fit:contain;margin-bottom:6px}
+  .r-sign .line{border-top:1.5px solid var(--carbon);padding-top:7px;font-size:13px}
+  .r-sign .line b{display:block}.r-sign .line span{color:var(--gris);font-size:12px}
+  .r-foot{background:var(--bg);padding:20px 44px;text-align:center;font-size:12px;color:var(--gris)}
+  .resumen{display:inline-block;background:#E3F5EC;color:#14633c;font-weight:700;font-size:14px;padding:7px 16px;border-radius:999px;margin-bottom:24px}
+  @media print{body{background:#fff;padding:0}.toolbar{display:none}.sheet{box-shadow:none;border-radius:0;max-width:100%}thead{display:table-header-group}tr{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <a href="{{ url_for('capacitacion_detalle', cid=c.id) }}" class="btn btn-ghost">← Volver</a>
+  <button class="btn" onclick="window.print()">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>
+    Descargar PDF
+  </button>
+</div>
+
+<div class="sheet">
+  <div class="r-head">
+    <div class="r-brand">
+      <span class="r-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.3 7 12 2.6 20.7 7v10L12 21.4 3.3 17z"/><path d="M3.3 7 12 11.5 20.7 7"/><path d="M12 11.5V21.4"/></svg></span>
+      <div><div class="r-logo">AVACOM</div><div class="r-logo-sub">Acta de asistencia</div></div>
+    </div>
+    <div class="r-doc">
+      <div class="t">Acta</div>
+      <div class="n">{{ c.acta }}</div>
+      <div class="d" style="font-size:13px;opacity:.85;margin-top:4px">{{ c.fecha_cierre.strftime('%d/%m/%Y') if c.fecha_cierre }}</div>
+    </div>
+  </div>
+
+  <div class="r-body">
+    <div class="r-title">{{ c.titulo }}</div>
+    {% if c.descripcion %}<p style="color:var(--gris);font-size:14px">{{ c.descripcion }}</p>{% endif %}
+
+    <div class="r-grid">
+      <div class="it"><div class="l">Capacitador</div><div class="v">{{ c.capacitador }}</div></div>
+      <div class="it"><div class="l">Modalidad</div><div class="v">{{ c.modalidad_label }}{% if c.lugar %} · {{ c.lugar }}{% endif %}</div></div>
+      <div class="it"><div class="l">Fecha y hora</div><div class="v">{{ c.fecha.strftime('%d/%m/%Y') if c.fecha else '—' }}{% if c.hora %} · {{ c.hora }}{% endif %}</div></div>
+      <div class="it"><div class="l">Duración</div><div class="v">{{ c.duracion_real or c.duracion_est or '—' }}</div></div>
+      <div class="it"><div class="l">Asistentes esperados</div><div class="v">{{ c.num_esperados or '—' }}</div></div>
+      <div class="it"><div class="l">Asistentes firmados</div><div class="v">{{ c.firmados }}</div></div>
+    </div>
+
+    <div class="resumen">Asistencia confirmada: {{ c.firmados }}{% if c.num_esperados %} de {{ c.num_esperados }}{% endif %} participantes</div>
+
+    <div class="r-sec-title">Listado de asistentes</div>
+    <table>
+      <thead><tr><th class="n-col">#</th><th>Nombre</th><th>Documento</th><th>Hora</th><th class="c">Firma</th></tr></thead>
+      <tbody>
+        {% for a in c.firmas %}
+        <tr>
+          <td class="n-col">{{ loop.index }}</td>
+          <td>{{ a.nombre }}</td>
+          <td>{{ a.documento or '—' }}</td>
+          <td>{{ a.fecha.strftime('%d/%m %H:%M') }}</td>
+          <td class="c firma-cell">{% if a.firma %}<img src="{{ a.firma }}" alt="Firma">{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% if c.fotos %}
+    <div class="r-sec-title">Evidencias de la capacitación</div>
+    <div class="ev-grid">
+      {% for ft in c.fotos %}<div class="ev"><img src="{{ ft.foto }}" alt="Evidencia"></div>{% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="r-sec-title">Certifica el capacitador</div>
+    <div class="r-sign">
+      {% if c.firma_capacitador %}<img src="{{ c.firma_capacitador }}" alt="Firma">{% endif %}
+      <div class="line"><b>{{ c.capacitador }}</b><span>{{ c.datos_capacitador or 'Capacitador AVACOM' }}</span></div>
+    </div>
+  </div>
+
+  <div class="r-foot">Este documento certifica la realización de la capacitación y la asistencia de las personas relacionadas, con sus firmas recopiladas digitalmente. · Acta {{ c.acta }}</div>
+</div>
+</body>
+</html>

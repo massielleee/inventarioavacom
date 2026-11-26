@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Nuevo despacho{% endblock %}
+{% block body %}
+<div class="topbar">
+  <div class="tb-back">
+    <a href="{{ url_for('despachos') }}" class="back-btn" title="Volver" aria-label="Volver">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div><div class="crumb"><a href="{{ url_for('despachos') }}">Despachos</a> / Nuevo</div><h1>Crear despacho</h1></div>
+  </div>
+</div>
+
+<form method="post" id="despform">
+<div class="form-2col">
+  <div class="card">
+    <div class="form-section-head">
+      <span class="fs-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h11v9H2z"/><path d="M13 9h4l4 4v2h-8z"/><circle cx="6.5" cy="18" r="1.9"/><circle cx="17" cy="18" r="1.9"/></svg></span>
+      <div><h2 style="margin:0">Datos del despacho</h2><p class="fs-sub">¿Qué se despacha y para quién?</p></div>
+    </div>
+    <div class="field"><label>Producto a despachar</label>
+      <select name="producto" required>
+        {% for p in productos %}<option value="{{ p.id }}">{{ p.sku }} — {{ p.nombre }} (stock: {{ p.stock }})</option>{% endfor %}
+      </select></div>
+    <div class="form-grid">
+      <div class="field"><label>Cantidad</label><input name="cantidad" type="number" min="1" value="1" required></div>
+      <div class="field"><label>Cliente</label><input name="cliente" placeholder="Nombre del cliente"></div>
+    </div>
+    <div class="field"><label>Destino / Dirección de entrega</label><input name="destino" placeholder="Ej. Colegio San José - Sede Norte" required></div>
+    <div class="field"><label>Motivo del despacho</label><input name="motivo" placeholder="Ej. Entrega por orden de compra #1234" required></div>
+  </div>
+
+  <div class="card">
+    <div class="form-section-head">
+      <span class="fs-ic ic-scan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20a7 7 0 0 1 14 0M12 3a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/></svg></span>
+      <div><h2 style="margin:0">Responsable</h2><p class="fs-sub">Quién crea y autoriza</p></div>
+    </div>
+    <div class="field"><label>Nombre del responsable</label>
+      <div class="input-ic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
+        <input name="responsable" value="{{ session.nombre }}" required>
+      </div>
+    </div>
+    <div class="field">
+      <label>Firma del responsable <span class="req">*</span></label>
+      <div class="sign-wrap">
+        <canvas id="firma" class="sign-canvas" width="440" height="140"></canvas>
+        <div class="sign-ph" id="signPh">✍ Firma aquí</div>
+        <button type="button" class="sign-clear" id="signClear"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg> Limpiar</button>
+      </div>
+    </div>
+    <input type="hidden" name="firma" id="firmaData">
+  </div>
+</div>
+
+<div class="form-actions-bar">
+  <a href="{{ url_for('despachos') }}" class="btn btn-ghost">Cancelar</a>
+  <button class="btn" type="submit">Crear y continuar →</button>
+</div>
+</form>
+
+<script>
+(function(){
+  var c=document.getElementById('firma'),ctx=c.getContext('2d'),draw=false,has=false,ph=document.getElementById('signPh');
+  ctx.strokeStyle="#1A1A1E";ctx.lineWidth=2.2;ctx.lineCap="round";ctx.lineJoin="round";
+  function pos(e){var r=c.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return {x:(t.clientX-r.left)*(c.width/r.width),y:(t.clientY-r.top)*(c.height/r.height)};}
+  function st(e){draw=true;has=true;ph.style.display='none';var p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);e.preventDefault();}
+  function mv(e){if(!draw)return;var p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();e.preventDefault();}
+  function en(){draw=false;if(has)document.getElementById('firmaData').value=c.toDataURL('image/png');}
+  c.addEventListener('mousedown',st);c.addEventListener('mousemove',mv);window.addEventListener('mouseup',en);
+  c.addEventListener('touchstart',st);c.addEventListener('touchmove',mv);c.addEventListener('touchend',en);
+  document.getElementById('signClear').addEventListener('click',function(){ctx.clearRect(0,0,c.width,c.height);has=false;ph.style.display='flex';document.getElementById('firmaData').value='';});
+})();
+</script>
+{% endblock %}

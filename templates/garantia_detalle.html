@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+{% block title %}Garantía {{ g.radicado }}{% endblock %}
+{% block body %}
+<div class="topbar">
+  <div class="tb-back">
+    <a href="{{ url_for('garantias') }}" class="back-btn" title="Volver" aria-label="Volver">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div><div class="crumb"><a href="{{ url_for('garantias') }}">Garantías</a> / {{ g.radicado }}</div>
+      <h1>Garantía {{ g.radicado }}</h1></div>
+  </div>
+  {% if g.estado=='RECIBIDA' %}<span class="badge b-pend" style="font-size:13px;padding:8px 18px">● Recibida</span>
+  {% elif g.estado=='EN_REVISION' %}<span class="badge b-bajo" style="font-size:13px;padding:8px 18px">● En revisión</span>
+  {% elif g.estado=='SOLUCIONADA' %}<span class="badge b-activo" style="font-size:13px;padding:8px 18px">● Solucionada</span>
+  {% else %}<span class="badge b-agotado" style="font-size:13px;padding:8px 18px">● No solucionada</span>{% endif %}
+</div>
+
+<div class="gar-layout">
+  <!-- ============ Columna principal: gestión técnica ============ -->
+  <div class="gar-main">
+
+    <!-- Checklist técnico de la revisión -->
+    <div class="card">
+      <div class="form-section-head">
+        <span class="fs-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg></span>
+        <div><h2 style="margin:0">Revisión técnica</h2><p class="fs-sub">Marca si cada punto funciona o falla — se guarda solo</p></div>
+      </div>
+      {% set editable = g.estado not in ['SOLUCIONADA','NO_SOLUCIONADA'] %}
+      <div class="chk2-list" data-gid="{{ g.id }}">
+        {% for item in check_items %}
+        {% set est = estados.get(item, '') %}
+        <div class="chk2-row {{ 'is-ok' if est=='ok' }} {{ 'is-falla' if est=='falla' }}" data-item="{{ item }}">
+          <span class="chk2-txt">{{ item }}</span>
+          {% if editable %}
+          <div class="chk2-btns">
+            <button type="button" class="chk2-btn ok {{ 'sel' if est=='ok' }}" data-val="ok">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Funciona
+            </button>
+            <button type="button" class="chk2-btn falla {{ 'sel' if est=='falla' }}" data-val="falla">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg> Falla
+            </button>
+          </div>
+          {% else %}
+          <span class="chk2-tag {{ est }}">{{ 'Funciona' if est=='ok' else ('Falla' if est=='falla' else 'Sin revisar') }}</span>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Diagnóstico + historial + contexto -->
+    <div class="card">
+      <div class="form-section-head">
+        <span class="fs-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg></span>
+        <div><h2 style="margin:0">Gestión técnica</h2><p class="fs-sub">Diagnóstico, historial y contexto del caso</p></div>
+      </div>
+      <form method="post">
+        <input type="hidden" name="accion" value="guardar_gestion">
+        <div class="form-grid">
+          <div class="field"><label>¿Por qué se dañó?</label>
+            <input name="motivo_dano" value="{{ g.motivo_dano or '' }}" placeholder="Causa del daño"></div>
+          <div class="field"><label>¿Quién llamó?</label>
+            <input name="quien_llamo" value="{{ g.quien_llamo or '' }}" placeholder="Quién reportó"></div>
+        </div>
+        <div class="field"><label>¿De dónde llamó?</label>
+          <input name="origen_llamada" value="{{ g.origen_llamada or '' }}" placeholder="Sede / ciudad"></div>
+        <div class="field"><label>Diagnóstico de la revisión <span class="req">*</span></label>
+          <textarea name="diagnostico" placeholder="Qué encontró el técnico y qué solución aplicó…">{{ g.diagnostico }}</textarea></div>
+        <div class="field"><label>Historial de lo que pasó</label>
+          <textarea name="historial" placeholder="Bitácora del caso: reporte → revisión → acciones realizadas…">{{ g.historial }}</textarea></div>
+        <button class="btn btn-ghost btn-sm" type="submit">Guardar gestión</button>
+      </form>
+    </div>
+
+    <!-- Evidencias fotográficas -->
+    <div class="card">
+      <div class="form-section-head">
+        <span class="fs-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L8 6H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-4z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
+        <div><h2 style="margin:0">Evidencias de la visita</h2><p class="fs-sub">Fotos que soportan que el técnico estuvo y qué hizo</p></div>
+      </div>
+      <div class="gar-ev-grid">
+        {% for ev in g.evidencias %}
+        <div class="gar-ev">
+          <img src="{{ ev.foto }}" alt="Evidencia">
+          <span class="gar-ev-lbl">{{ ev.etiqueta }}</span>
+          {% if g.estado not in ['SOLUCIONADA','NO_SOLUCIONADA'] %}
+          <form method="post" class="gar-ev-del">
+            <input type="hidden" name="accion" value="borrar_evidencia">
+            <input type="hidden" name="ev_id" value="{{ ev.id }}">
+            <button type="submit" title="Eliminar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+          </form>
+          {% endif %}
+        </div>
+        {% endfor %}
+        {% if g.estado not in ['SOLUCIONADA','NO_SOLUCIONADA'] %}
+        <form method="post" class="gar-ev-add" id="evform" enctype="multipart/form-data">
+          <input type="hidden" name="accion" value="subir_evidencia">
+          <input type="hidden" name="foto" class="foto-data">
+          <input type="hidden" name="etiqueta" class="et-data">
+          <label class="gar-ev-btn">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            <span>Agregar foto</span>
+            <input type="file" accept="image/*" capture="environment" class="foto-input" hidden>
+          </label>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Firmas -->
+    {% if g.estado not in ['SOLUCIONADA','NO_SOLUCIONADA'] %}
+    <div class="card">
+      <div class="form-section-head">
+        <span class="fs-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17c3-1 5-4 6-7 1 3 2 5 4 5s2-3 3-5 3 2 5 2"/></svg></span>
+        <div><h2 style="margin:0">Firmas de la visita</h2><p class="fs-sub">Técnico y persona que recibe deben firmar</p></div>
+      </div>
+      <div class="firma-dual">
+        <!-- firma técnico -->
+        <div class="firma-col">
+          <h4 class="firma-h">Firma del técnico <span class="req">*</span></h4>
+          {% if g.firma_tecnico %}
+            <div class="firma-ok"><img src="{{ g.firma_tecnico }}" alt="Firma"><span>✓ Firmó {{ g.tecnico.nombre if g.tecnico }}</span></div>
+          {% else %}
+          <form method="post" id="ftecform">
+            <input type="hidden" name="accion" value="firmar_tecnico">
+            <div class="sign-wrap">
+              <canvas id="firmaTec" class="sign-canvas" width="440" height="120"></canvas>
+              <div class="sign-ph" id="phTec">✍ Firma del técnico</div>
+              <button type="button" class="sign-clear" data-clear="firmaTec"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg> Limpiar</button>
+            </div>
+            <input type="hidden" name="firma_tecnico" id="firmaTecData">
+            <button class="btn btn-ghost btn-sm" type="submit" style="margin-top:10px">Guardar firma técnico</button>
+          </form>
+          {% endif %}
+        </div>
+        <!-- firma cliente -->
+        <div class="firma-col">
+          <h4 class="firma-h">Firma de quien recibe <span class="req">*</span></h4>
+          {% if g.firma_cliente %}
+            <div class="firma-ok"><img src="{{ g.firma_cliente }}" alt="Firma"><span>✓ Firmó el cliente</span></div>
+          {% else %}
+          <form method="post" id="fcliform">
+            <input type="hidden" name="accion" value="firmar_cliente">
+            <div class="sign-wrap">
+              <canvas id="firmaCli" class="sign-canvas" width="440" height="120"></canvas>
+              <div class="sign-ph" id="phCli">✍ Firma del cliente</div>
+              <button type="button" class="sign-clear" data-clear="firmaCli"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg> Limpiar</button>
+            </div>
+            <input type="hidden" name="firma_cliente" id="firmaCliData">
+            <button class="btn btn-ghost btn-sm" type="submit" style="margin-top:10px">Guardar firma cliente</button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ============ Lateral: info + cierre ============ -->
+  <div class="gar-side">
+    <div class="card">
+      <h2 style="font-size:17px;margin-bottom:14px">Información del caso</h2>
+      <div class="side-rows">
+        <div><span>Radicado</span><span class="sku">{{ g.radicado }}</span></div>
+        <div><span>Producto</span><b>{{ g.producto.nombre if g.producto }}</b></div>
+        <div><span>SKU</span><span class="sku">{{ g.producto.sku if g.producto }}</span></div>
+        <div><span>Cliente</span>{{ g.cliente }}</div>
+        <div><span>Teléfono</span>{{ g.telefono or '—' }}</div>
+        <div><span>Soporte</span>{{ g.soporte_label }}</div>
+        <div><span>Técnico</span>{{ g.tecnico.nombre if g.tecnico }}</div>
+        <div><span>Recibida</span>{{ g.fecha.strftime('%d/%m/%Y %H:%M') }}</div>
+      </div>
+      <div class="gar-reporte">
+        <b>Falla reportada</b>
+        <p>{{ g.descripcion or 'Sin descripción' }}</p>
+      </div>
+    </div>
+
+    {% if g.estado in ['SOLUCIONADA','NO_SOLUCIONADA'] %}
+    <!-- caso cerrado -->
+    <div class="card desp-done">
+      {% if g.solucionado %}
+      <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#1E9E62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg>
+      <h2 style="margin:12px 0 4px">¡Solucionado!</h2>
+      {% else %}
+      <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#C01C32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>
+      <h2 style="margin:12px 0 4px">No solucionado</h2>
+      <p style="color:var(--gris);font-size:13.5px">{{ g.motivo_no_solucion }}</p>
+      {% endif %}
+      <p style="color:var(--gris);font-size:14px">Remisión {{ g.remision_tecnica }}</p>
+      <a href="{{ url_for('remision_garantia', gid=g.id) }}" class="btn btn-full" style="margin-top:14px">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><path d="M9 13h6M9 17h6"/></svg>
+        Ver remisión técnica</a>
+    </div>
+    {% else %}
+    <!-- cerrar visita -->
+    <div class="card">
+      <h2 style="font-size:17px;margin-bottom:12px">Cerrar visita</h2>
+      {% set ev_n = g.evidencias|length %}
+      {% set listo = g.firma_tecnico and g.firma_cliente and g.diagnostico and ev_n>0 %}
+      {% if listo %}
+      <p class="desp-ready">✓ Todo soportado. Emite la remisión técnica.</p>
+      <form method="post">
+        <input type="hidden" name="accion" value="cerrar_visita">
+        <div class="field"><label>¿Se solucionó el problema?</label>
+          <div class="radio-inline">
+            <label><input type="radio" name="solucionado" value="si" checked onchange="document.getElementById('noSolBox').style.display='none'"> Sí, resuelto</label>
+            <label><input type="radio" name="solucionado" value="no" onchange="document.getElementById('noSolBox').style.display='block'"> No</label>
+          </div>
+        </div>
+        <div class="field" id="noSolBox" style="display:none">
+          <label>¿Por qué no se solucionó?</label>
+          <input name="motivo_no_solucion" placeholder="Ej. Requiere repuesto / daño irreparable">
+        </div>
+        <button class="btn btn-ok btn-full" type="submit" style="margin-top:6px">Cerrar y emitir remisión →</button>
+      </form>
+      {% else %}
+      <p class="desp-pending">⚠ Para cerrar la visita necesitas:</p>
+      <ul class="desp-reqs">
+        <li class="{{ 'ok' if g.diagnostico }}">Diagnóstico de la revisión</li>
+        <li class="{{ 'ok' if ev_n>0 }}">Al menos una foto de evidencia ({{ ev_n }})</li>
+        <li class="{{ 'ok' if g.firma_tecnico }}">Firma del técnico</li>
+        <li class="{{ 'ok' if g.firma_cliente }}">Firma de quien recibe</li>
+      </ul>
+      <button class="btn btn-full" disabled style="opacity:.5;cursor:not-allowed">Cerrar visita (bloqueado)</button>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+// ---- subir evidencia: pedir etiqueta, convertir a dataURL y enviar ----
+document.querySelectorAll('.foto-input').forEach(function(inp){
+  inp.addEventListener('change',function(){
+    var f=inp.files[0]; if(!f) return;
+    var et = prompt("¿Qué muestra esta foto?", "Equipo revisado");
+    if(et===null){ inp.value=''; return; }
+    avacomComprimirFoto(f, function(dataUrl){
+      var form=inp.closest('form');
+      form.querySelector('.foto-data').value=dataUrl;
+      form.querySelector('.et-data').value=et||'Evidencia';
+      form.submit();
+    });
+  });
+});
+// ---- checklist Funciona/Falla con guardado instantáneo ----
+(function(){
+  var cont=document.querySelector('.chk2-list'); if(!cont)return;
+  var gid=cont.getAttribute('data-gid');
+  cont.querySelectorAll('.chk2-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var row=btn.closest('.chk2-row'), item=row.getAttribute('data-item');
+      var val=btn.getAttribute('data-val');
+      var yaSel=btn.classList.contains('sel');
+      var nuevoVal = yaSel ? '' : val;   // volver a tocar el mismo = desmarca
+      // actualizar UI al instante
+      row.querySelectorAll('.chk2-btn').forEach(b=>b.classList.remove('sel'));
+      row.classList.remove('is-ok','is-falla');
+      if(nuevoVal==='ok'){ btn.classList.add('sel'); row.classList.add('is-ok'); }
+      else if(nuevoVal==='falla'){ btn.classList.add('sel'); row.classList.add('is-falla'); }
+      // guardar en el servidor (sin recargar)
+      var fd=new FormData();
+      fd.append('accion','marcar_check'); fd.append('item',item); fd.append('valor',nuevoVal);
+      fetch(window.location.pathname,{method:'POST',body:fd}).catch(function(){
+        // si falla la red, recargar para no perder consistencia
+        window.location.reload();
+      });
+    });
+  });
+})();
+// ---- firmas (técnico y cliente) ----
+function initSign(canvasId, dataId, phId){
+  var c=document.getElementById(canvasId); if(!c)return;
+  var ctx=c.getContext('2d'),draw=false,has=false,ph=document.getElementById(phId);
+  ctx.strokeStyle="#1A1A1E";ctx.lineWidth=2.2;ctx.lineCap="round";ctx.lineJoin="round";
+  function pos(e){var r=c.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return {x:(t.clientX-r.left)*(c.width/r.width),y:(t.clientY-r.top)*(c.height/r.height)};}
+  function st(e){draw=true;has=true;ph.style.display='none';var p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);e.preventDefault();}
+  function mv(e){if(!draw)return;var p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();e.preventDefault();}
+  function en(){draw=false;if(has)document.getElementById(dataId).value=c.toDataURL('image/png');}
+  c.addEventListener('mousedown',st);c.addEventListener('mousemove',mv);window.addEventListener('mouseup',en);
+  c.addEventListener('touchstart',st);c.addEventListener('touchmove',mv);c.addEventListener('touchend',en);
+}
+initSign('firmaTec','firmaTecData','phTec');
+initSign('firmaCli','firmaCliData','phCli');
+document.querySelectorAll('.sign-clear').forEach(function(b){
+  b.addEventListener('click',function(){
+    var id=b.getAttribute('data-clear'),c=document.getElementById(id);
+    if(c){var x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);}
+    var ph=c.parentElement.querySelector('.sign-ph'); if(ph)ph.style.display='flex';
+    var hid=c.parentElement.parentElement.querySelector('input[type=hidden][id$=Data]'); if(hid)hid.value='';
+  });
+});
+</script>
+{% endblock %}

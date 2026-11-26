@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Movimiento #{{ m.id }}{% endblock %}
+{% block body %}
+<div class="topbar">
+  <div class="tb-back">
+    <a href="{{ url_for('movimientos') }}" class="back-btn" title="Volver" aria-label="Volver">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div><div class="crumb"><a href="{{ url_for('movimientos') }}">Movimientos</a> / #{{ m.id }}</div><h1>Detalle del movimiento</h1></div>
+  </div>
+  <span class="badge {{ 'b-activo' if m.tipo=='ENTRADA' else 'b-agotado' }}" style="font-size:13px;padding:8px 18px">
+    {{ 'Entrada (+)' if m.tipo=='ENTRADA' else 'Salida (−)' }}
+  </span>
+</div>
+
+<div class="mov-det-layout">
+  <!-- Datos -->
+  <div class="card">
+    <div class="form-section-head">
+      <span class="fs-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg></span>
+      <div><h2 style="margin:0">Información del movimiento</h2><p class="fs-sub">Registro completo y verificable</p></div>
+    </div>
+    <div class="side-rows">
+      <div><span>Movimiento</span><b>#{{ m.id }}</b></div>
+      <div><span>Tipo</span>
+        {% if m.tipo=='ENTRADA' %}<span class="badge b-activo">Entrada (+)</span>
+        {% else %}<span class="badge b-agotado">Salida (−)</span>{% endif %}
+      </div>
+      <div><span>Producto</span><b>{{ m.producto.nombre if m.producto else '—' }}</b></div>
+      <div><span>SKU</span><span class="sku">{{ m.producto.sku if m.producto else '—' }}</span></div>
+      <div><span>Cantidad</span><b class="mov-qty {{ 'ent' if m.tipo=='ENTRADA' else 'sal' }}">{{ '+' if m.tipo=='ENTRADA' else '−' }}{{ m.cantidad }}</b></div>
+      <div><span>Responsable</span>{{ m.responsable or (m.usuario.nombre if m.usuario) or '—' }}</div>
+      <div><span>Fecha y hora</span>{{ m.fecha.strftime('%d/%m/%Y %H:%M') }}</div>
+    </div>
+    {% if m.motivo %}
+    <div class="mov-det-motivo">
+      <b>Motivo / ¿Para qué?</b>
+      <p>{{ m.motivo }}</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Firma -->
+  <div class="card">
+    <div class="form-section-head">
+      <span class="fs-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17c3-1 5-4 6-7 1 3 2 5 4 5s2-3 3-5 3 2 5 2"/></svg></span>
+      <div><h2 style="margin:0">Firma del responsable</h2><p class="fs-sub">Respaldo de quién autorizó la operación</p></div>
+    </div>
+    {% if m.firma %}
+    <div class="mov-det-firma">
+      <img src="{{ m.firma }}" alt="Firma del responsable">
+      <div class="mov-det-firma-line">
+        <b>{{ m.responsable or (m.usuario.nombre if m.usuario) }}</b>
+        <span>Responsable del movimiento</span>
+      </div>
+    </div>
+    {% else %}
+    <p class="empty" style="padding:30px 0">Este movimiento no tiene firma registrada.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

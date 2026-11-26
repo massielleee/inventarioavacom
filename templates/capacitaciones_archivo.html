@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Archivo de capacitaciones{% endblock %}
+{% block body %}
+<div class="topbar">
+  <div class="tb-back">
+    <a href="{{ url_for('capacitaciones') }}" class="back-btn" title="Volver" aria-label="Volver">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div><div class="crumb"><a href="{{ url_for('capacitaciones') }}">Capacitaciones</a> / Archivo</div><h1>Archivo de capacitaciones</h1></div>
+  </div>
+</div>
+
+<p class="arch-intro">Historial de todas las capacitaciones realizadas. Abre cada una para verificar el acta y quiénes asistieron.</p>
+
+{% if items %}
+<div class="arch-grid">
+  {% for c in items %}
+  <div class="arch-card">
+    <div class="arch-head">
+      <span class="sku">{{ c.acta }}</span>
+      <span class="badge b-activo">● Cerrada</span>
+    </div>
+    <h3 class="arch-title">{{ c.titulo }}</h3>
+    <div class="arch-rows">
+      <div><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg> {{ c.capacitador }}</div>
+      <div><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> {{ c.fecha_cierre.strftime('%d/%m/%Y') if c.fecha_cierre else '—' }}</div>
+      <div><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.6-7-11a7 7 0 0 1 14 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> {{ c.modalidad_label }}{% if c.lugar %} · {{ c.lugar }}{% endif %}</div>
+    </div>
+    <div class="arch-stat">
+      <div class="arch-num">{{ c.firmados }}</div>
+      <div class="arch-num-lbl">asistentes firmaron{% if c.num_esperados %} de {{ c.num_esperados }}{% endif %}</div>
+    </div>
+    <a href="{{ url_for('acta_capacitacion', cid=c.id) }}" class="btn btn-full btn-sm">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><path d="M9 13h6M9 17h6"/></svg>
+      Ver acta y asistentes</a>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card"><p class="empty" style="padding:40px 0">Aún no hay capacitaciones realizadas en el archivo.</p></div>
+{% endif %}
+{% endblock %}

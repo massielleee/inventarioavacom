@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Productos{% endblock %}
+{% block body %}
+<div class="topbar">
+  <div><div class="crumb">Inventario</div><h1>Productos</h1></div>
+  {% if session.rol=='ADMIN' %}<a href="{{ url_for('producto_nuevo') }}" class="btn">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    Nuevo producto</a>{% endif %}
+</div>
+
+<div class="card">
+  <form class="toolbar" method="get">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="text" name="q" value="{{ q }}" placeholder="Buscar por nombre o SKU…">
+    </div>
+    <button class="btn btn-sm" type="submit">Buscar</button>
+    {% if q %}<a href="{{ url_for('productos') }}" class="btn btn-ghost btn-sm">Limpiar</a>{% endif %}
+    <span class="count-chip">{{ items|length }} producto{{ 's' if items|length != 1 }}</span>
+  </form>
+  <table class="tbl-pro">
+    <thead><tr><th>SKU</th><th>Producto</th><th>Categoría</th><th class="r">Precio</th><th class="c">Stock</th><th class="c">Estado</th><th></th></tr></thead>
+    <tbody>
+      {% for p in items %}
+      <tr>
+        <td><span class="sku">{{ p.sku }}</span></td>
+        <td class="t-name">{{ p.nombre }}</td>
+        <td><span class="cat-tag">{{ p.categoria.nombre if p.categoria }}</span></td>
+        <td class="r">${{ "{:,.0f}".format(p.precio) }}</td>
+        <td class="c"><b>{{ p.stock }}</b></td>
+        <td class="c">
+          {% if p.estado=='ACTIVO' %}<span class="badge b-activo">● Activo</span>
+          {% elif p.estado=='BAJO' %}<span class="badge b-bajo">● Bajo</span>
+          {% else %}<span class="badge b-agotado">● Agotado</span>{% endif %}
+        </td>
+        <td class="c acciones">
+          <a href="{{ url_for('producto_detalle', pid=p.id) }}" class="icon-link" title="Ver ficha">
+          <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></a>
+          {% if session.rol == 'ADMIN' %}
+          <form method="post" action="{{ url_for('producto_eliminar', pid=p.id) }}" style="display:inline"
+                onsubmit="return confirm('¿Eliminar el producto {{ p.nombre }}? Se borran también sus movimientos. Esta acción no se puede deshacer.');">
+            <button type="submit" class="icon-del" title="Eliminar">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg>
+            </button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}<tr><td colspan="7" class="empty">No se encontraron productos.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

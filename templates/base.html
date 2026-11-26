@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AVACOM · {% block title %}{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='estilo.css') }}">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <a class="side-brand" href="{{ url_for('dashboard') }}" title="Ir al inicio">
+      <span class="side-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3.3 7 12 2.6 20.7 7v10L12 21.4 3.3 17z"/><path d="M3.3 7 12 11.5 20.7 7"/><path d="M12 11.5V21.4"/>
+        </svg>
+      </span>
+      <div><div class="brand">AVA<span>COM</span></div><div class="brand-sub">Inventory Platform</div></div>
+    </a>
+    <nav class="nav">
+      <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint=='dashboard' }}">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.6"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.6"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.6"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.6"/></svg></span> Dashboard</a>
+      <a href="{{ url_for('productos') }}" class="{{ 'active' if 'producto' in request.endpoint }}">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span> Productos</a>
+      {% if session.rol in ['ADMIN','BODEGA'] %}
+      <a href="{{ url_for('movimientos') }}" class="{{ 'active' if request.endpoint=='movimientos' }}">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg></span> Movimientos</a>
+      <div class="sep">Bodega</div>
+      <a href="{{ url_for('despachos') }}" class="{{ 'active' if 'despacho' in request.endpoint }}">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h11v9H2z"/><path d="M13 9h4l4 4v2h-8z"/><circle cx="6.5" cy="18" r="1.9"/><circle cx="17" cy="18" r="1.9"/></svg></span> Despachos</a>
+      {% endif %}
+      {% if session.rol in ['ADMIN','TECNICO'] %}
+      <div class="sep">Soporte técnico</div>
+      <a href="{{ url_for('garantias') }}" class="{{ 'active' if 'garantia' in request.endpoint }}">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a3.5 3.5 0 0 0-4.7 4.3L3.4 17.2a1.8 1.8 0 0 0 2.5 2.5l6.6-6.6a3.5 3.5 0 0 0 4.3-4.7l-2.2 2.2-2.3-.5-.5-2.3z"/></svg></span> Garantías</a>
+      {% endif %}
+      {% if session.rol in ['ADMIN','CAPACITADOR'] %}
+      <div class="sep">Formación</div>
+      <a href="{{ url_for('capacitaciones') }}" class="{{ 'active' if 'capacitacion' in request.endpoint or 'acta' in request.endpoint }}">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/></svg></span> Capacitaciones</a>
+      {% endif %}
+      {% if session.rol == 'ADMIN' %}
+      <div class="sep">Administración</div>
+      <a href="{{ url_for('usuarios') }}" class="{{ 'active' if 'usuario' in request.endpoint }}">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 5.5a3 3 0 0 1 0 5.6M18 20a6 6 0 0 0-3-5.2"/></svg></span> Usuarios</a>
+      {% endif %}
+    </nav>
+    <div class="side-user">
+      <div class="su-avatar">{{ session.nombre[:1] if session.nombre }}</div>
+      <div class="su-info">
+        <div class="u-name">{{ session.nombre }}</div>
+        <span class="u-rol">{{ current_user.rol_label if current_user }}</span>
+      </div>
+      <a href="{{ url_for('logout') }}" class="su-out" title="Cerrar sesión" aria-label="Cerrar sesión">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 17l-5-5 5-5M5 12h11"/></svg>
+      </a>
+    </div>
+  </aside>
+  <main class="main">
+    {% with msgs = get_flashed_messages(with_categories=true) %}
+      {% for cat,msg in msgs %}<div class="flash {{ cat }}">{{ '✓' if cat=='ok' else '⚠' }} {{ msg }}</div>{% endfor %}
+    {% endwith %}
+    {% block body %}{% endblock %}
+  </main>
+</div>
+<script>
+/* Comprime una imagen en el navegador: la redimensiona a máx 1280px y la pasa a
+   JPEG de calidad media. Así una foto de celular de 3-4 MB queda en ~150-300 KB,
+   carga rápido y nunca rompe con error 413. Devuelve el dataURL por callback. */
+function avacomComprimirFoto(file, cb){
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var img = new Image();
+    img.onload = function(){
+      var MAX = 1280;
+      var w = img.width, h = img.height;
+      if (w > h && w > MAX){ h = Math.round(h * MAX / w); w = MAX; }
+      else if (h >= w && h > MAX){ w = Math.round(w * MAX / h); h = MAX; }
+      var cv = document.createElement('canvas');
+      cv.width = w; cv.height = h;
+      var ctx = cv.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0,0,w,h);
+      ctx.drawImage(img, 0, 0, w, h);
+      try { cb(cv.toDataURL('image/jpeg', 0.7)); }
+      catch(err){ cb(e.target.result); } // si algo falla, enviar original
+    };
+    img.onerror = function(){ cb(e.target.result); };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
